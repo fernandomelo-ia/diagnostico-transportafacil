@@ -1,21 +1,18 @@
 /**
  * Google Apps Script — Diagnóstico TransportaFácil
  *
- * COMO USAR:
- * 1. Abra o Google Drive e crie uma Google Planilha (Sheets)
- * 2. Copie o ID da planilha da URL: .../spreadsheets/d/{SHEET_ID}/edit
- * 3. Cole o ID no campo SHEET_ID abaixo
- * 4. No menu: Extensões → Apps Script
- * 5. Cole TODO este código no editor
- * 6. Clique em Implantar → Nova implantação
+ * PRÓXIMO PASSO (único manual):
+ * 1. Abra: https://script.google.com
+ * 2. Clique em "Novo projeto"
+ * 3. Cole TODO este código no editor (substitua o que estiver lá)
+ * 4. Clique em Implantar → Nova implantação
  *    - Tipo: Aplicativo da Web
- *    - Executar como: Eu mesmo
+ *    - Executar como: Eu mesmo (fernandomelo.digital@gmail.com)
  *    - Quem pode acessar: Qualquer pessoa
- * 7. Clique em Implantar → Copie a URL gerada
- * 8. Cole a URL no arquivo index.html na variável GOOGLE_SCRIPT_URL
+ * 5. Clique Implantar → copie a URL e passe para o Dex
  */
 
-const SHEET_ID   = 'COLE_AQUI_O_ID_DA_SUA_PLANILHA'; // ← substitua isso
+const SHEET_ID   = '17nikLUa-dSu3ZuxSuqSq73XubUceiKz5Mcft_Bzdeq4';
 const SHEET_NAME = 'Respostas';
 
 // Cabeçalhos das colunas (mesma ordem que o formulário envia)
