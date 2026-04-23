@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnóstico TransportaFácil — Sistema de Gestão para Transportadoras</title>
+  <style>
+    :root {
+      --primary: #1a3a5c;
+      --accent:  #e84c3d;
+      --light:   #f4f6f9;
+      --border:  #dce1ea;
+      --text:    #2c3e50;
+      --muted:   #7f8c9a;
+      --success: #27ae60;
+      --warn:    #f39c12;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--light);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ─────────────────────────────── */
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 28px 40px 24px;
+      border-bottom: 4px solid var(--accent);
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: .3px; }
+    header p  { font-size: .9rem; opacity: .8; margin-top: 4px; }
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: .75rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      margin-top: 8px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    /* ── LAYOUT ──────────────────────────────── */
+    .container { max-width: 860px; margin: 32px auto; padding: 0 20px 60px; }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+    }
+    .info-row label { display: block; font-weight: 600; font-size: .85rem; margin-bottom: 4px; }
+    .info-row input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: .95rem;
+      color: var(--text);
+      outline: none;
+      transition: border .2s;
+    }
+    .info-row input:focus { border-color: var(--primary); }
+
+    /* ── BLOCO ───────────────────────────────── */
+    .bloco {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .bloco-header {
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 24px;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: .3px;
+    }
+    .bloco-header span {
+      background: rgba(255,255,255,.18);
+      border-radius: 4px;
+      padding: 1px 8px;
+      margin-right: 8px;
+      font-size: .8rem;
+    }
+    .bloco-body { padding: 20px 24px; }
+
+    /* ── QUESTÃO ─────────────────────────────── */
+    .questao {
+      margin-bottom: 26px;
+      padding-bottom: 22px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .questao:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .questao-label {
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .questao-hint {
+      font-size: .82rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    /* ── OPÇÕES RADIO/CHECKBOX ───────────────── */
+    .opcoes { display: flex; flex-direction: column; gap: 8px; }
+
+    .opcao {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .opcao:hover { background: #f0f4fa; border-color: #b0c0d8; }
+    .opcao input[type="radio"],
+    .opcao input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+    .opcao.selected-radio  { background: #e8f0fb; border-color: var(--primary); }
+    .opcao.selected-check  { background: #e8f0fb; border-color: var(--primary); }
+    .opcao-texto { font-size: .93rem; line-height: 1.45; }
+
+    /* ── PRIORIDADE ──────────────────────────── */
+    .prioridade-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .prio-btn {
+      flex: 1;
+      min-width: 160px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: .88rem;
+      font-weight: 600;
+      transition: all .15s;
+      background: #fff;
+    }
+    .prio-btn:hover { opacity: .85; }
+    .prio-critico   { border-color: #e84c3d; color: #e84c3d; }
+    .prio-critico.active   { background: #e84c3d; color: #fff; }
+    .prio-importante{ border-color: #f39c12; color: #c0840a; }
+    .prio-importante.active{ background: #f39c12; color: #fff; }
+    .prio-secundario{ border-color: var(--success); color: var(--success); }
+    .prio-secundario.active{ background: var(--success); color: #fff; }
+
+    /* ── RANKING ─────────────────────────────── */
+    .rank-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px; align-items: center; }
+    .rank-label { font-weight: 600; font-size: .88rem; color: var(--muted); }
+    .rank-select {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: .9rem;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+    }
+    .rank-select:focus { border-color: var(--primary); }
+
+    /* ── TEXTAREA ────────────────────────────── */
+    textarea.campo-aberto {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: .93rem;
+      font-family: inherit;
+      color: var(--text);
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: border .2s;
+    }
+    textarea.campo-aberto:focus { border-color: var(--primary); }
+
+    /* ── OUTROS TEXT ─────────────────────────── */
+    .outro-input {
+      display: none;
+      margin-top: 8px;
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: .9rem;
+      color: var(--text);
+      outline: none;
+    }
+    .outro-input.show { display: block; }
+    .outro-input:focus { border-color: var(--primary); }
+
+    /* ── BOTÕES ──────────────────────────────── */
+    .btn-bar {
+      display: flex;
+      gap: 14px;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-secondary { background: var(--muted); color: #fff; }
+    .btn-secondary:hover { opacity: .8; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { opacity: .88; }
+
+    /* ── PROGRESSO ───────────────────────────── */
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 20px;
+      height: 8px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 20px;
+      transition: width .4s;
+      width: 0%;
+    }
+    .progress-label {
+      font-size: .8rem;
+      color: var(--muted);
+      text-align: right;
+      margin-bottom: 6px;
+    }
+
+    /* ── TOAST ───────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--primary);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: .92rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+      display: none;
+      z-index: 1000;
+    }
+    #toast.show { display: block; animation: fadeIn .3s; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    @media (max-width: 600px) {
+      header { padding: 20px; }
+      .info-row { grid-template-columns: 1fr; }
+      .prioridade-row { flex-direction: column; }
+      .rank-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Diagnóstico — Sistema de Gestão para Transportadoras</h1>
+  <p>Levantamento de dores e prioridades operacionais</p>
+  <span class="badge">SSW v1.0</span>
+</header>
+
+<div class="container">
+
+  <!-- PROGRESSO -->
+  <p class="progress-label" id="progressLabel">0 de 38 respostas preenchidas</p>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+  <!-- IDENTIFICAÇÃO -->
+  <div class="info-row">
+    <div>
+      <label for="nomeEmpresa">Nome da Empresa *</label>
+      <input type="text" id="nomeEmpresa" placeholder="Ex: Transportadora Rota Sul Ltda" />
+    </div>
+    <div>
+      <label for="nomeRespondente">Nome do Respondente *</label>
+      <input type="text" id="nomeRespondente" placeholder="Ex: João da Silva" />
+    </div>
+    <div>
+      <label for="cargo">Cargo</label>
+      <input type="text" id="cargo" placeholder="Ex: Diretor, Gerente, Sócio..." />
+    </div>
+    <div>
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="email@empresa.com.br" />
+    </div>
+  </div>
+
+  <form id="diagnosticoForm" novalidate>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 0 — PERFIL DA EMPRESA
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 0</span>Perfil da Empresa</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">0.1. Qual é o porte da sua frota?</div>
+          <div class="opcoes" data-name="q01" data-type="radio">
+            <label class="opcao"><input type="radio" name="q01" value="A) Até 10 veículos" /><span class="opcao-texto">A) Até 10 veículos</span></label>
+            <label class="opcao"><input type="radio" name="q01" value="B) 11 a 30 veículos" /><span class="opcao-texto">B) 11 a 30 veículos</span></label>
+            <label class="opcao"><input type="radio" name="q01" value="C) 31 a 80 veículos" /><span class="opcao-texto">C) 31 a 80 veículos</span></label>
+            <label class="opcao"><input type="radio" name="q01" value="D) 81 a 200 veículos" /><span class="opcao-texto">D) 81 a 200 veículos</span></label>
+            <label class="opcao"><input type="radio" name="q01" value="E) Acima de 200 veículos" /><span class="opcao-texto">E) Acima de 200 veículos</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">0.2. Quantos colaboradores a empresa possui?</div>
+          <div class="opcoes" data-name="q02" data-type="radio">
+            <label class="opcao"><input type="radio" name="q02" value="A) Até 10" /><span class="opcao-texto">A) Até 10</span></label>
+            <label class="opcao"><input type="radio" name="q02" value="B) 11 a 30" /><span class="opcao-texto">B) 11 a 30</span></label>
+            <label class="opcao"><input type="radio" name="q02" value="C) 31 a 100" /><span class="opcao-texto">C) 31 a 100</span></label>
+            <label class="opcao"><input type="radio" name="q02" value="D) 101 a 300" /><span class="opcao-texto">D) 101 a 300</span></label>
+            <label class="opcao"><input type="radio" name="q02" value="E) Mais de 300" /><span class="opcao-texto">E) Mais de 300</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">0.3. Qual é o principal segmento de operação?</div>
+          <div class="opcoes" data-name="q03" data-type="radio">
+            <label class="opcao"><input type="radio" name="q03" value="A) TRC geral" /><span class="opcao-texto">A) Transporte rodoviário de cargas (TRC) geral</span></label>
+            <label class="opcao"><input type="radio" name="q03" value="B) Frigorificados" /><span class="opcao-texto">B) Transporte de produtos frigorificados</span></label>
+            <label class="opcao"><input type="radio" name="q03" value="C) Cargas perigosas" /><span class="opcao-texto">C) Transporte de cargas perigosas</span></label>
+            <label class="opcao"><input type="radio" name="q03" value="D) Grãos/agronegócio" /><span class="opcao-texto">D) Transporte de grãos / agronegócio</span></label>
+            <label class="opcao"><input type="radio" name="q03" value="E) Cegonheira" /><span class="opcao-texto">E) Transporte de veículos (cegonheira)</span></label>
+            <label class="opcao"><input type="radio" name="q03" value="F) Distribuição urbana/last mile" /><span class="opcao-texto">F) Distribuição urbana / last mile</span></label>
+            <label class="opcao outro-opcao"><input type="radio" name="q03" value="G) Outro" data-outro="q03_outro" /><span class="opcao-texto">G) Outro</span></label>
+            <input type="text" id="q03_outro" class="outro-input" placeholder="Especifique..." />
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">0.4. Em quantos estados a empresa opera?</div>
+          <div class="opcoes" data-name="q04" data-type="radio">
+            <label class="opcao"><input type="radio" name="q04" value="A) Apenas 1 estado" /><span class="opcao-texto">A) Apenas 1 estado</span></label>
+            <label class="opcao"><input type="radio" name="q04" value="B) 2 a 5 estados" /><span class="opcao-texto">B) 2 a 5 estados</span></label>
+            <label class="opcao"><input type="radio" name="q04" value="C) 6 a 15 estados" /><span class="opcao-texto">C) 6 a 15 estados</span></label>
+            <label class="opcao"><input type="radio" name="q04" value="D) Nacional (16+ estados)" /><span class="opcao-texto">D) Operação nacional (16+ estados)</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">0.5. Qual sistema operacional de transporte (TMS) a empresa utiliza hoje?</div>
+          <div class="opcoes" data-name="q05" data-type="radio">
+            <label class="opcao"><input type="radio" name="q05" value="A) Nenhum – planilha" /><span class="opcao-texto">A) Não usa nenhum sistema — tudo em planilha</span></label>
+            <label class="opcao"><input type="radio" name="q05" value="B) Sistema próprio" /><span class="opcao-texto">B) Sistema próprio desenvolvido internamente</span></label>
+            <label class="opcao"><input type="radio" name="q05" value="C) Transporte Web / Sisfrete" /><span class="opcao-texto">C) Transporte Web / Sisfrete</span></label>
+            <label class="opcao"><input type="radio" name="q05" value="D) Senior Sistemas" /><span class="opcao-texto">D) Senior Sistemas</span></label>
+            <label class="opcao"><input type="radio" name="q05" value="E) Totvs Protheus" /><span class="opcao-texto">E) Totvs Protheus</span></label>
+            <label class="opcao"><input type="radio" name="q05" value="F) Omie / Conta Azul" /><span class="opcao-texto">F) Omie / Conta Azul (adaptado)</span></label>
+            <label class="opcao outro-opcao"><input type="radio" name="q05" value="G) Outro" data-outro="q05_outro" /><span class="opcao-texto">G) Outro</span></label>
+            <input type="text" id="q05_outro" class="outro-input" placeholder="Especifique o TMS..." />
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 1 — GESTÃO DE FROTA
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 1</span>Gestão de Frota</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">1.1. Como a empresa controla hoje as manutenções preventivas e corretivas?</div>
+          <div class="opcoes" data-name="q11" data-type="radio">
+            <label class="opcao"><input type="radio" name="q11" value="A) Não controla" /><span class="opcao-texto">A) Não controla — manutenção acontece quando o veículo para</span></label>
+            <label class="opcao"><input type="radio" name="q11" value="B) Anotação manual" /><span class="opcao-texto">B) Controla por anotação manual ou caderno</span></label>
+            <label class="opcao"><input type="radio" name="q11" value="C) Planilha Excel/Sheets" /><span class="opcao-texto">C) Controla por planilha Excel/Google Sheets</span></label>
+            <label class="opcao"><input type="radio" name="q11" value="D) Módulo TMS" /><span class="opcao-texto">D) Usa módulo dentro do TMS atual</span></label>
+            <label class="opcao"><input type="radio" name="q11" value="E) Sistema específico de frota" /><span class="opcao-texto">E) Usa sistema específico de frota (ex: Alterdata, Samsara)</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">1.2. O vencimento de documentos dos veículos (CRLV, licença, tacógrafo) gera problemas operacionais?</div>
+          <div class="opcoes" data-name="q12" data-type="radio">
+            <label class="opcao"><input type="radio" name="q12" value="A) Sim, já perdemos veículo parado" /><span class="opcao-texto">A) Sim, já perdemos veículo parado por documento vencido</span></label>
+            <label class="opcao"><input type="radio" name="q12" value="B) Sim, checamos manualmente todo mês" /><span class="opcao-texto">B) Sim, precisamos checar manualmente todo mês para não esquecer</span></label>
+            <label class="opcao"><input type="radio" name="q12" value="C) Raramente, mas é risco real" /><span class="opcao-texto">C) Raramente, mas é um risco real</span></label>
+            <label class="opcao"><input type="radio" name="q12" value="D) Não, temos processo funcionando" /><span class="opcao-texto">D) Não, temos processo funcionando bem hoje</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">1.3. Como é feito o controle de consumo de combustível?</div>
+          <div class="opcoes" data-name="q13" data-type="radio">
+            <label class="opcao"><input type="radio" name="q13" value="A) Não controlado por veículo" /><span class="opcao-texto">A) Não é controlado individualmente por veículo</span></label>
+            <label class="opcao"><input type="radio" name="q13" value="B) Planilha manual" /><span class="opcao-texto">B) Controlado por planilha com preenchimento manual</span></label>
+            <label class="opcao"><input type="radio" name="q13" value="C) Cartão frota" /><span class="opcao-texto">C) Via cartão frota com relatório da bandeira</span></label>
+            <label class="opcao"><input type="radio" name="q13" value="D) Sistema integrado automático" /><span class="opcao-texto">D) Via sistema integrado com leitura automática</span></label>
+            <label class="opcao outro-opcao"><input type="radio" name="q13" value="E) Outro" data-outro="q13_outro" /><span class="opcao-texto">E) Outro</span></label>
+            <input type="text" id="q13_outro" class="outro-input" placeholder="Especifique..." />
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">1.4. A empresa tem visibilidade do custo real por veículo (pneu, manutenção, combustível, impostos)?</div>
+          <div class="opcoes" data-name="q14" data-type="radio">
+            <label class="opcao"><input type="radio" name="q14" value="A) Não sabemos o custo real" /><span class="opcao-texto">A) Não — não sabemos o custo real por veículo</span></label>
+            <label class="opcao"><input type="radio" name="q14" value="B) Sabemos de forma aproximada" /><span class="opcao-texto">B) Sabemos de forma aproximada, mas não confiamos nos números</span></label>
+            <label class="opcao"><input type="radio" name="q14" value="C) Sabemos para alguns veículos" /><span class="opcao-texto">C) Sabemos para alguns veículos, mas não para toda a frota</span></label>
+            <label class="opcao"><input type="radio" name="q14" value="D) Controle preciso por veículo" /><span class="opcao-texto">D) Sim, temos controle preciso por veículo</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">1.5. Como é feito o rastreamento/telemetria da frota hoje?</div>
+          <div class="opcoes" data-name="q15" data-type="radio">
+            <label class="opcao"><input type="radio" name="q15" value="A) Não há rastreamento" /><span class="opcao-texto">A) Não há rastreamento</span></label>
+            <label class="opcao"><input type="radio" name="q15" value="B) App no celular do motorista" /><span class="opcao-texto">B) Rastreamento via app no celular do motorista</span></label>
+            <label class="opcao"><input type="radio" name="q15" value="C) Rastreador separado do sistema" /><span class="opcao-texto">C) Rastreador instalado, mas visualização separada do restante do sistema</span></label>
+            <label class="opcao"><input type="radio" name="q15" value="D) Rastreador integrado ao sistema" /><span class="opcao-texto">D) Rastreador integrado ao sistema de gestão</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">1.6. Qual é a principal dor da empresa em relação à frota?</div>
+          <div class="questao-hint">Marque até 2 opções</div>
+          <div class="opcoes" data-name="q16" data-type="checkbox" data-max="2">
+            <label class="opcao"><input type="checkbox" name="q16" value="A) Custo de manutenção fora de controle" /><span class="opcao-texto">A) Custo de manutenção fora de controle</span></label>
+            <label class="opcao"><input type="checkbox" name="q16" value="B) Veículos parados por falta de previsão" /><span class="opcao-texto">B) Veículos parados por falta de previsão de manutenção</span></label>
+            <label class="opcao"><input type="checkbox" name="q16" value="C) Perda de rentabilidade por combustível" /><span class="opcao-texto">C) Perda de rentabilidade por consumo excessivo de combustível</span></label>
+            <label class="opcao"><input type="checkbox" name="q16" value="D) Documentos vencendo sem aviso" /><span class="opcao-texto">D) Documentos vencendo sem aviso prévio</span></label>
+            <label class="opcao"><input type="checkbox" name="q16" value="E) Não saber quais veículos dão lucro" /><span class="opcao-texto">E) Não saber quais veículos dão lucro e quais dão prejuízo</span></label>
+            <label class="opcao"><input type="checkbox" name="q16" value="F) Dificuldade de monitorar motorista" /><span class="opcao-texto">F) Dificuldade de monitorar localização e comportamento do motorista</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">1.7. Prioridade deste pilar para sua empresa:</div>
+          <div class="prioridade-row" data-name="q17" data-type="prio">
+            <button type="button" class="prio-btn prio-critico"    data-value="Crítico">🔴 Crítico<br><small>é nossa maior dor hoje</small></button>
+            <button type="button" class="prio-btn prio-importante" data-value="Importante">🟡 Importante<br><small>precisa melhorar, não urgente</small></button>
+            <button type="button" class="prio-btn prio-secundario" data-value="Secundário">🟢 Secundário<br><small>está razoavelmente controlado</small></button>
+          </div>
+          <input type="hidden" name="q17" value="" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 2 — GESTÃO FINANCEIRA
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 2</span>Gestão Financeira</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">2.1. Como a empresa controla contas a pagar e a receber hoje?</div>
+          <div class="opcoes" data-name="q21" data-type="radio">
+            <label class="opcao"><input type="radio" name="q21" value="A) Não controla" /><span class="opcao-texto">A) Não controla de forma organizada</span></label>
+            <label class="opcao"><input type="radio" name="q21" value="B) Planilha manual" /><span class="opcao-texto">B) Planilha manual atualizada pelo financeiro</span></label>
+            <label class="opcao"><input type="radio" name="q21" value="C) Sistema financeiro básico" /><span class="opcao-texto">C) Sistema financeiro básico (ex: Conta Azul, Omie)</span></label>
+            <label class="opcao"><input type="radio" name="q21" value="D) Módulo ERP/TMS" /><span class="opcao-texto">D) Módulo financeiro dentro do ERP/TMS atual</span></label>
+            <label class="opcao"><input type="radio" name="q21" value="E) Sistema financeiro robusto" /><span class="opcao-texto">E) Sistema financeiro robusto separado (ex: SAP, TOTVS)</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.2. A empresa tem visão clara do fluxo de caixa para os próximos 30/60/90 dias?</div>
+          <div class="opcoes" data-name="q22" data-type="radio">
+            <label class="opcao"><input type="radio" name="q22" value="A) Não, só quando a conta fica negativa" /><span class="opcao-texto">A) Não — descobrimos o problema quando a conta está negativa</span></label>
+            <label class="opcao"><input type="radio" name="q22" value="B) Ideia aproximada, sem confiança" /><span class="opcao-texto">B) Temos ideia aproximada, mas não confiamos na projeção</span></label>
+            <label class="opcao"><input type="radio" name="q22" value="C) Controlamos com esforço manual" /><span class="opcao-texto">C) Controlamos, mas com esforço manual grande</span></label>
+            <label class="opcao"><input type="radio" name="q22" value="D) Painel de fluxo de caixa atualizado" /><span class="opcao-texto">D) Sim, temos painel de fluxo de caixa atualizado</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.3. A empresa sabe qual é a margem de lucro por cliente, por rota ou por carga?</div>
+          <div class="opcoes" data-name="q23" data-type="radio">
+            <label class="opcao"><input type="radio" name="q23" value="A) Não calculamos margem" /><span class="opcao-texto">A) Não — não calculamos margem por operação</span></label>
+            <label class="opcao"><input type="radio" name="q23" value="B) Calculamos esporadicamente" /><span class="opcao-texto">B) Calculamos esporadicamente quando surge dúvida</span></label>
+            <label class="opcao"><input type="radio" name="q23" value="C) Calculamos para principais clientes" /><span class="opcao-texto">C) Calculamos para os principais clientes/rotas</span></label>
+            <label class="opcao"><input type="radio" name="q23" value="D) Visão completa de margem" /><span class="opcao-texto">D) Temos visão completa de margem por operação</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.4. Como a empresa lida com inadimplência de clientes?</div>
+          <div class="opcoes" data-name="q24" data-type="radio">
+            <label class="opcao"><input type="radio" name="q24" value="A) Sem processo definido" /><span class="opcao-texto">A) Não temos processo definido — cada caso é um caso</span></label>
+            <label class="opcao"><input type="radio" name="q24" value="B) Controle manual com atraso" /><span class="opcao-texto">B) Controlamos manualmente mas com atraso</span></label>
+            <label class="opcao"><input type="radio" name="q24" value="C) Alerta, cobrança manual" /><span class="opcao-texto">C) Temos alerta mas o processo de cobrança é manual</span></label>
+            <label class="opcao"><input type="radio" name="q24" value="D) Processo automatizado" /><span class="opcao-texto">D) Temos processo automatizado de cobrança e alerta</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.5. A empresa tem conciliação bancária organizada?</div>
+          <div class="opcoes" data-name="q25" data-type="radio">
+            <label class="opcao"><input type="radio" name="q25" value="A) Não fazemos" /><span class="opcao-texto">A) Não fazemos conciliação bancária</span></label>
+            <label class="opcao"><input type="radio" name="q25" value="B) Manualmente, uma vez por mês" /><span class="opcao-texto">B) Fazemos manualmente, uma vez por mês</span></label>
+            <label class="opcao"><input type="radio" name="q25" value="C) Semanalmente com esforço manual" /><span class="opcao-texto">C) Fazemos semanalmente com esforço manual</span></label>
+            <label class="opcao"><input type="radio" name="q25" value="D) Conciliação automatizada" /><span class="opcao-texto">D) Temos conciliação automatizada</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.6. Os centros de custo (por veículo, rota, filial, cliente) são controlados?</div>
+          <div class="opcoes" data-name="q26" data-type="radio">
+            <label class="opcao"><input type="radio" name="q26" value="A) Tudo num único bolo" /><span class="opcao-texto">A) Não — todo custo vai para um único "bolo"</span></label>
+            <label class="opcao"><input type="radio" name="q26" value="B) Tentamos separar, info não confiável" /><span class="opcao-texto">B) Tentamos separar, mas a informação não é confiável</span></label>
+            <label class="opcao"><input type="radio" name="q26" value="C) Por filial, não por veículo/rota" /><span class="opcao-texto">C) Separamos por filial/unidade, mas não por veículo ou rota</span></label>
+            <label class="opcao"><input type="radio" name="q26" value="D) Centros de custo detalhados" /><span class="opcao-texto">D) Temos centros de custo detalhados e confiáveis</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.7. Qual é a principal dor financeira da empresa?</div>
+          <div class="questao-hint">Marque até 2 opções</div>
+          <div class="opcoes" data-name="q27" data-type="checkbox" data-max="2">
+            <label class="opcao"><input type="checkbox" name="q27" value="A) Não saber se dá lucro real" /><span class="opcao-texto">A) Não saber se a empresa está dando lucro real</span></label>
+            <label class="opcao"><input type="checkbox" name="q27" value="B) Dificuldade de previsão de caixa" /><span class="opcao-texto">B) Dificuldade de previsão de caixa</span></label>
+            <label class="opcao"><input type="checkbox" name="q27" value="C) Inadimplência sem controle" /><span class="opcao-texto">C) Inadimplência sem processo de controle</span></label>
+            <label class="opcao"><input type="checkbox" name="q27" value="D) Custos operacionais sem rastreabilidade" /><span class="opcao-texto">D) Custos operacionais que "somem" sem rastreabilidade</span></label>
+            <label class="opcao"><input type="checkbox" name="q27" value="E) Dificuldade de precificar fretes" /><span class="opcao-texto">E) Dificuldade de precificar fretes de forma lucrativa</span></label>
+            <label class="opcao"><input type="checkbox" name="q27" value="F) Falta de relatórios gerenciais" /><span class="opcao-texto">F) Falta de relatórios gerenciais para tomada de decisão</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">2.8. Prioridade deste pilar para sua empresa:</div>
+          <div class="prioridade-row" data-name="q28" data-type="prio">
+            <button type="button" class="prio-btn prio-critico"    data-value="Crítico">🔴 Crítico<br><small>é nossa maior dor hoje</small></button>
+            <button type="button" class="prio-btn prio-importante" data-value="Importante">🟡 Importante<br><small>precisa melhorar, não urgente</small></button>
+            <button type="button" class="prio-btn prio-secundario" data-value="Secundário">🟢 Secundário<br><small>está razoavelmente controlado</small></button>
+          </div>
+          <input type="hidden" name="q28" value="" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 3 — RH E MOTORISTAS
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 3</span>Gestão de RH e Motoristas</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">3.1. Como é feito o controle de jornada dos motoristas hoje?</div>
+          <div class="opcoes" data-name="q31" data-type="radio">
+            <label class="opcao"><input type="radio" name="q31" value="A) Não controlamos" /><span class="opcao-texto">A) Não controlamos formalmente</span></label>
+            <label class="opcao"><input type="radio" name="q31" value="B) Ponto manual em papel" /><span class="opcao-texto">B) Controle por folha de ponto manual (papel)</span></label>
+            <label class="opcao"><input type="radio" name="q31" value="C) Ponto eletrônico sem integração" /><span class="opcao-texto">C) Ponto eletrônico, mas sem integração com o sistema de transporte</span></label>
+            <label class="opcao"><input type="radio" name="q31" value="D) Tacógrafo integrado ao sistema" /><span class="opcao-texto">D) Controle via tacógrafo com leitura integrada ao sistema</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.2. O vencimento de CNH, exames toxicológicos e ASOs dos motoristas é controlado?</div>
+          <div class="opcoes" data-name="q32" data-type="radio">
+            <label class="opcao"><input type="radio" name="q32" value="A) Não, já houve CNH vencida circulando" /><span class="opcao-texto">A) Não — já tivemos motorista com CNH vencida circulando</span></label>
+            <label class="opcao"><input type="radio" name="q32" value="B) Planilha com risco de esquecimento" /><span class="opcao-texto">B) Controlamos manualmente com planilha, mas com risco de esquecimento</span></label>
+            <label class="opcao"><input type="radio" name="q32" value="C) Temos lembretes manuais" /><span class="opcao-texto">C) Temos lembretes, mas o processo é manual</span></label>
+            <label class="opcao"><input type="radio" name="q32" value="D) Sistema automático de alertas" /><span class="opcao-texto">D) Temos sistema que alerta automaticamente com antecedência</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.3. Como a empresa gerencia treinamentos e certificados obrigatórios (MOPP, NR etc.)?</div>
+          <div class="opcoes" data-name="q33" data-type="radio">
+            <label class="opcao"><input type="radio" name="q33" value="A) Não gerenciamos" /><span class="opcao-texto">A) Não gerenciamos — só quando a fiscalização exige</span></label>
+            <label class="opcao"><input type="radio" name="q33" value="B) Planilha" /><span class="opcao-texto">B) Controlamos por planilha</span></label>
+            <label class="opcao"><input type="radio" name="q33" value="C) Processo não automatizado" /><span class="opcao-texto">C) Temos processo, mas não é automatizado</span></label>
+            <label class="opcao"><input type="radio" name="q33" value="D) Controle centralizado e automático" /><span class="opcao-texto">D) Temos controle centralizado e automático</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.4. Como é feita a gestão de produtividade dos motoristas?</div>
+          <div class="opcoes" data-name="q34" data-type="radio">
+            <label class="opcao"><input type="radio" name="q34" value="A) Não medimos" /><span class="opcao-texto">A) Não medimos produtividade por motorista</span></label>
+            <label class="opcao"><input type="radio" name="q34" value="B) Avaliamos subjetivamente" /><span class="opcao-texto">B) Avaliamos subjetivamente, sem dados concretos</span></label>
+            <label class="opcao"><input type="radio" name="q34" value="C) Km rodado e entregas" /><span class="opcao-texto">C) Medimos km rodado e entregas realizadas</span></label>
+            <label class="opcao"><input type="radio" name="q34" value="D) Indicadores completos" /><span class="opcao-texto">D) Temos indicadores completos: custo, entregas, acidentes, eficiência</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.5. A empresa tem visibilidade de custo total por colaborador?</div>
+          <div class="opcoes" data-name="q35" data-type="radio">
+            <label class="opcao"><input type="radio" name="q35" value="A) RH e financeiro não se conversam" /><span class="opcao-texto">A) Não — RH e financeiro não se conversam</span></label>
+            <label class="opcao"><input type="radio" name="q35" value="B) Sabemos só o custo salarial" /><span class="opcao-texto">B) Sabemos o custo salarial, mas não o custo total</span></label>
+            <label class="opcao"><input type="radio" name="q35" value="C) Estimativa imprecisa" /><span class="opcao-texto">C) Temos uma estimativa, mas não é precisa</span></label>
+            <label class="opcao"><input type="radio" name="q35" value="D) Custo total por colaborador" /><span class="opcao-texto">D) Sim, temos custo total por colaborador</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.6. Como a empresa lida com absenteísmo e rotatividade de motoristas?</div>
+          <div class="opcoes" data-name="q36" data-type="radio">
+            <label class="opcao"><input type="radio" name="q36" value="A) Problema recorrente sem solução" /><span class="opcao-texto">A) Não medimos — é problema recorrente sem solução estruturada</span></label>
+            <label class="opcao"><input type="radio" name="q36" value="B) Sabemos que é alto, sem dados" /><span class="opcao-texto">B) Sabemos que é alto, mas não temos dados precisos</span></label>
+            <label class="opcao"><input type="radio" name="q36" value="C) Medimos, não agimos preventivamente" /><span class="opcao-texto">C) Medimos, mas não conseguimos agir preventivamente</span></label>
+            <label class="opcao"><input type="radio" name="q36" value="D) Indicadores e processo de retenção" /><span class="opcao-texto">D) Temos indicadores e processo de retenção estruturado</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.7. Qual é a principal dor de RH da empresa?</div>
+          <div class="questao-hint">Marque até 2 opções</div>
+          <div class="opcoes" data-name="q37" data-type="checkbox" data-max="2">
+            <label class="opcao"><input type="checkbox" name="q37" value="A) Documentação vencida, risco legal" /><span class="opcao-texto">A) Motoristas com documentação vencida gerando risco legal</span></label>
+            <label class="opcao"><input type="checkbox" name="q37" value="B) Alta rotatividade sem causa" /><span class="opcao-texto">B) Alta rotatividade sem entender a causa</span></label>
+            <label class="opcao"><input type="checkbox" name="q37" value="C) Jornada sem controle, passivo trabalhista" /><span class="opcao-texto">C) Falta de controle de jornada gerando passivo trabalhista</span></label>
+            <label class="opcao"><input type="checkbox" name="q37" value="D) Custo real por colaborador desconhecido" /><span class="opcao-texto">D) Não saber o custo real de cada colaborador</span></label>
+            <label class="opcao"><input type="checkbox" name="q37" value="E) Produtividade difícil de medir" /><span class="opcao-texto">E) Dificuldade de medir e melhorar produtividade da equipe</span></label>
+            <label class="opcao"><input type="checkbox" name="q37" value="F) Admissão/demissão desorganizados" /><span class="opcao-texto">F) Processos de admissão e demissão desorganizados</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">3.8. Prioridade deste pilar para sua empresa:</div>
+          <div class="prioridade-row" data-name="q38" data-type="prio">
+            <button type="button" class="prio-btn prio-critico"    data-value="Crítico">🔴 Crítico<br><small>é nossa maior dor hoje</small></button>
+            <button type="button" class="prio-btn prio-importante" data-value="Importante">🟡 Importante<br><small>precisa melhorar, não urgente</small></button>
+            <button type="button" class="prio-btn prio-secundario" data-value="Secundário">🟢 Secundário<br><small>está razoavelmente controlado</small></button>
+          </div>
+          <input type="hidden" name="q38" value="" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 4 — VISÃO GERENCIAL
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 4</span>Visão Gerencial e Indicadores</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">4.1. O diretor/dono da empresa tem acesso a um painel de indicadores atualizado?</div>
+          <div class="opcoes" data-name="q41" data-type="radio">
+            <label class="opcao"><input type="radio" name="q41" value="A) Relatórios por e-mail quando peço" /><span class="opcao-texto">A) Não — recebo relatórios por e-mail quando peço</span></label>
+            <label class="opcao"><input type="radio" name="q41" value="B) Alguns relatórios, demoram dias" /><span class="opcao-texto">B) Tenho alguns relatórios, mas demoram dias para ficarem prontos</span></label>
+            <label class="opcao"><input type="radio" name="q41" value="C) Dashboards sem precisão confiável" /><span class="opcao-texto">C) Tenho dashboards, mas não confio na precisão dos dados</span></label>
+            <label class="opcao"><input type="radio" name="q41" value="D) Painel em tempo real para decisões" /><span class="opcao-texto">D) Sim, tenho painel em tempo real que uso para decisões</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">4.2. A empresa sabe o custo por km rodado da sua frota?</div>
+          <div class="opcoes" data-name="q42" data-type="radio">
+            <label class="opcao"><input type="radio" name="q42" value="A) Não calculamos" /><span class="opcao-texto">A) Não calculamos custo por km</span></label>
+            <label class="opcao"><input type="radio" name="q42" value="B) Esporadicamente, não confiável" /><span class="opcao-texto">B) Calculamos esporadicamente, mas não é confiável</span></label>
+            <label class="opcao"><input type="radio" name="q42" value="C) Mensalmente com esforço manual" /><span class="opcao-texto">C) Calculamos mensalmente com esforço manual</span></label>
+            <label class="opcao"><input type="radio" name="q42" value="D) Custo por km atualizado automaticamente" /><span class="opcao-texto">D) Sim, temos custo por km atualizado automaticamente</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">4.3. A empresa consegue visualizar a disponibilidade da frota em tempo real?</div>
+          <div class="opcoes" data-name="q43" data-type="radio">
+            <label class="opcao"><input type="radio" name="q43" value="A) Perguntamos ao operacional" /><span class="opcao-texto">A) Não — só sabemos o que está disponível perguntando ao operacional</span></label>
+            <label class="opcao"><input type="radio" name="q43" value="B) Planilha atualizada manualmente" /><span class="opcao-texto">B) Temos planilha atualizada manualmente</span></label>
+            <label class="opcao"><input type="radio" name="q43" value="C) Sistema com input manual" /><span class="opcao-texto">C) Temos sistema, mas a atualização depende de input manual</span></label>
+            <label class="opcao"><input type="radio" name="q43" value="D) Visão em tempo real" /><span class="opcao-texto">D) Sim, temos visão em tempo real de disponibilidade</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">4.4. Com que frequência a empresa toma decisões com base em dados concretos?</div>
+          <div class="opcoes" data-name="q44" data-type="radio">
+            <label class="opcao"><input type="radio" name="q44" value="A) Raramente, decisões por intuição" /><span class="opcao-texto">A) Raramente — as decisões são baseadas em experiência e intuição</span></label>
+            <label class="opcao"><input type="radio" name="q44" value="B) Às vezes, quando temos relatórios" /><span class="opcao-texto">B) Às vezes, quando conseguimos montar relatórios</span></label>
+            <label class="opcao"><input type="radio" name="q44" value="C) Na maioria das vezes" /><span class="opcao-texto">C) Na maioria das vezes, mas os dados nem sempre estão prontos</span></label>
+            <label class="opcao"><input type="radio" name="q44" value="D) Sempre, temos dados disponíveis" /><span class="opcao-texto">D) Sempre — temos dados disponíveis e usamos para todas as decisões</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">4.5. Quais indicadores a empresa mais precisa mas não consegue visualizar hoje?</div>
+          <div class="questao-hint">Marque até 3 opções</div>
+          <div class="opcoes" data-name="q45" data-type="checkbox" data-max="3">
+            <label class="opcao"><input type="checkbox" name="q45" value="A) Margem operacional por rota/cliente" /><span class="opcao-texto">A) Margem operacional por rota ou cliente</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="B) Custo por km por veículo" /><span class="opcao-texto">B) Custo por km por veículo</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="C) Manutenção vs disponibilidade" /><span class="opcao-texto">C) Índice de manutenção vs. disponibilidade da frota</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="D) Receita vs custo por motorista" /><span class="opcao-texto">D) Receita vs. custo por colaborador/motorista</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="E) Previsão de caixa por carteira" /><span class="opcao-texto">E) Previsão de caixa com base na carteira de pedidos</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="F) Taxa de inadimplência e prazo de recebimento" /><span class="opcao-texto">F) Taxa de inadimplência e tempo médio de recebimento</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="G) Produtividade e absenteísmo" /><span class="opcao-texto">G) Produtividade e absenteísmo da equipe</span></label>
+            <label class="opcao"><input type="checkbox" name="q45" value="H) Comparativo entre filiais" /><span class="opcao-texto">H) Comparativo de desempenho entre filiais/unidades</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">4.6. Prioridade deste pilar para sua empresa:</div>
+          <div class="prioridade-row" data-name="q46" data-type="prio">
+            <button type="button" class="prio-btn prio-critico"    data-value="Crítico">🔴 Crítico<br><small>é nossa maior dor hoje</small></button>
+            <button type="button" class="prio-btn prio-importante" data-value="Importante">🟡 Importante<br><small>precisa melhorar, não urgente</small></button>
+            <button type="button" class="prio-btn prio-secundario" data-value="Secundário">🟢 Secundário<br><small>está razoavelmente controlado</small></button>
+          </div>
+          <input type="hidden" name="q46" value="" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 5 — INTEGRAÇÃO E TECNOLOGIA
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 5</span>Integração e Tecnologia</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">5.1. A empresa estaria disposta a manter o sistema atual e adicionar uma camada de gestão acima?</div>
+          <div class="opcoes" data-name="q51" data-type="radio">
+            <label class="opcao"><input type="radio" name="q51" value="A) Sim, não quero trocar" /><span class="opcao-texto">A) Sim, com certeza — não quero trocar o sistema operacional</span></label>
+            <label class="opcao"><input type="radio" name="q51" value="B) Provavelmente sim, depende do custo" /><span class="opcao-texto">B) Provavelmente sim, dependendo do custo de integração</span></label>
+            <label class="opcao"><input type="radio" name="q51" value="C) Prefiro trocar tudo" /><span class="opcao-texto">C) Preferiria trocar tudo por uma solução única</span></label>
+            <label class="opcao"><input type="radio" name="q51" value="D) Não tenho sistema, começaria do zero" /><span class="opcao-texto">D) Ainda não tenho sistema operacional, começaria do zero</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">5.2. Qual é o maior obstáculo para adotar um novo sistema de gestão hoje?</div>
+          <div class="opcoes" data-name="q52" data-type="radio">
+            <label class="opcao"><input type="radio" name="q52" value="A) Custo de implantação" /><span class="opcao-texto">A) Custo de implantação</span></label>
+            <label class="opcao"><input type="radio" name="q52" value="B) Resistência da equipe" /><span class="opcao-texto">B) Resistência da equipe à mudança</span></label>
+            <label class="opcao"><input type="radio" name="q52" value="C) Falta de tempo" /><span class="opcao-texto">C) Falta de tempo para implementar</span></label>
+            <label class="opcao"><input type="radio" name="q52" value="D) Medo de perder dados" /><span class="opcao-texto">D) Medo de perder dados do sistema atual</span></label>
+            <label class="opcao"><input type="radio" name="q52" value="E) Não saber qual sistema escolher" /><span class="opcao-texto">E) Não saber qual sistema escolher</span></label>
+            <label class="opcao"><input type="radio" name="q52" value="F) Já tentamos, não funcionou" /><span class="opcao-texto">F) Já tentamos antes e não funcionou</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">5.3. Como a empresa prefere que o sistema seja acessado?</div>
+          <div class="opcoes" data-name="q53" data-type="radio">
+            <label class="opcao"><input type="radio" name="q53" value="A) Somente desktop" /><span class="opcao-texto">A) Somente desktop (computador)</span></label>
+            <label class="opcao"><input type="radio" name="q53" value="B) Desktop e mobile" /><span class="opcao-texto">B) Desktop e mobile (celular/tablet)</span></label>
+            <label class="opcao"><input type="radio" name="q53" value="C) Prioritariamente mobile" /><span class="opcao-texto">C) Prioritariamente mobile (motoristas e gestores em campo)</span></label>
+            <label class="opcao"><input type="radio" name="q53" value="D) Sem preferência" /><span class="opcao-texto">D) Não tenho preferência — o que funcionar melhor</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">5.4. Quais integrações seriam indispensáveis para adotar o sistema?</div>
+          <div class="questao-hint">Marque até 3 opções</div>
+          <div class="opcoes" data-name="q54" data-type="checkbox" data-max="3">
+            <label class="opcao"><input type="checkbox" name="q54" value="A) TMS atual" /><span class="opcao-texto">A) TMS / sistema de transporte atual</span></label>
+            <label class="opcao"><input type="checkbox" name="q54" value="B) GPS/rastreador" /><span class="opcao-texto">B) GPS / rastreador já instalado na frota</span></label>
+            <label class="opcao"><input type="checkbox" name="q54" value="C) Ponto eletrônico/folha" /><span class="opcao-texto">C) Sistema de ponto eletrônico / folha de pagamento</span></label>
+            <label class="opcao"><input type="checkbox" name="q54" value="D) Banco/Open Finance" /><span class="opcao-texto">D) Banco / Open Finance para conciliação automática</span></label>
+            <label class="opcao"><input type="checkbox" name="q54" value="E) ERP contábil/fiscal" /><span class="opcao-texto">E) ERP contábil / fiscal</span></label>
+            <label class="opcao"><input type="checkbox" name="q54" value="F) NFe/CTe/MDFe SEFAZ" /><span class="opcao-texto">F) NFe / CTe / MDFe (SEFAZ)</span></label>
+            <label class="opcao"><input type="checkbox" name="q54" value="G) Cartão frota" /><span class="opcao-texto">G) Cartão frota (combustível)</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">5.5. Em quanto tempo a empresa esperaria ver resultados concretos após a implantação?</div>
+          <div class="opcoes" data-name="q55" data-type="radio">
+            <label class="opcao"><input type="radio" name="q55" value="A) Até 30 dias" /><span class="opcao-texto">A) Em até 30 dias</span></label>
+            <label class="opcao"><input type="radio" name="q55" value="B) 1 a 3 meses" /><span class="opcao-texto">B) Em 1 a 3 meses</span></label>
+            <label class="opcao"><input type="radio" name="q55" value="C) 3 a 6 meses" /><span class="opcao-texto">C) Em 3 a 6 meses</span></label>
+            <label class="opcao"><input type="radio" name="q55" value="D) 6 a 12 meses" /><span class="opcao-texto">D) Estou disposto a aguardar de 6 a 12 meses para um resultado sólido</span></label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         BLOCO 6 — PRIORIZAÇÃO FINAL
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>BLOCO 6</span>Priorização Final</div>
+      <div class="bloco-body">
+
+        <div class="questao">
+          <div class="questao-label">6.1. Ranqueie os 4 pilares em ordem de urgência para a sua empresa:</div>
+          <div class="questao-hint">Selecione a posição de cada pilar (1º = mais urgente, 4º = menos urgente)</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+            <div class="rank-grid">
+              <span class="rank-label">1º mais urgente</span>
+              <select class="rank-select" name="rank1"><option value="">— selecione —</option><option>Frota</option><option>Financeiro</option><option>RH</option><option>Painel Gerencial</option></select>
+            </div>
+            <div class="rank-grid">
+              <span class="rank-label">2º</span>
+              <select class="rank-select" name="rank2"><option value="">— selecione —</option><option>Frota</option><option>Financeiro</option><option>RH</option><option>Painel Gerencial</option></select>
+            </div>
+            <div class="rank-grid">
+              <span class="rank-label">3º</span>
+              <select class="rank-select" name="rank3"><option value="">— selecione —</option><option>Frota</option><option>Financeiro</option><option>RH</option><option>Painel Gerencial</option></select>
+            </div>
+            <div class="rank-grid">
+              <span class="rank-label">4º menos urgente</span>
+              <select class="rank-select" name="rank4"><option value="">— selecione —</option><option>Frota</option><option>Financeiro</option><option>RH</option><option>Painel Gerencial</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">6.2. Se o sistema só pudesse resolver UMA coisa nos primeiros 90 dias, qual seria?</div>
+          <div class="opcoes" data-name="q62" data-type="radio">
+            <label class="opcao"><input type="radio" name="q62" value="A) Visibilidade do custo real da frota" /><span class="opcao-texto">A) Me dar visibilidade do custo real da minha frota</span></label>
+            <label class="opcao"><input type="radio" name="q62" value="B) Organizar financeiro e fluxo de caixa" /><span class="opcao-texto">B) Organizar o financeiro e o fluxo de caixa</span></label>
+            <label class="opcao"><input type="radio" name="q62" value="C) Controlar documentos e compliance" /><span class="opcao-texto">C) Controlar documentos e compliance de motoristas e veículos</span></label>
+            <label class="opcao"><input type="radio" name="q62" value="D) Painel gerencial com KPIs" /><span class="opcao-texto">D) Entregar um painel gerencial com os principais KPIs do negócio</span></label>
+            <label class="opcao"><input type="radio" name="q62" value="E) Integrar tudo num único lugar" /><span class="opcao-texto">E) Integrar tudo que já uso em um único lugar</span></label>
+          </div>
+        </div>
+
+        <div class="questao">
+          <div class="questao-label">6.3. Qual frase descreve melhor a situação da sua empresa hoje?</div>
+          <div class="opcoes" data-name="q63" data-type="radio">
+            <label class="opcao"><input type="radio" name="q63" value="A) Operamos bem, não enxergamos o lucro" /><span class="opcao-texto">A) "Operamos bem, mas não enxergamos o lucro real"</span></label>
+            <label class="opcao"><input type="radio" name="q63" value="B) Dados espalhados, ninguém vê o todo" /><span class="opcao-texto">B) "Temos dados espalhados em vários lugares e ninguém vê o todo"</span></label>
+            <label class="opcao"><input type="radio" name="q63" value="C) Decisões no escuro, apagando incêndio" /><span class="opcao-texto">C) "Tomamos decisões no escuro e vivemos apagando incêndio"</span></label>
+            <label class="opcao"><input type="radio" name="q63" value="D) Problema claro, falta ferramenta" /><span class="opcao-texto">D) "O problema está claro, mas falta ferramenta para resolver"</span></label>
+            <label class="opcao"><input type="radio" name="q63" value="E) Crescendo rápido, controle não acompanha" /><span class="opcao-texto">E) "Estamos crescendo rápido e o controle não acompanha"</span></label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         CAMPO ABERTO
+    ═══════════════════════════════════════ -->
+    <div class="bloco">
+      <div class="bloco-header"><span>ABERTO</span>Campo Livre (Opcional)</div>
+      <div class="bloco-body">
+        <div class="questao" style="border:none;margin:0;padding:0">
+          <div class="questao-label">Descreva em até 3 linhas a situação que mais tira o seu sono hoje na gestão da empresa:</div>
+          <textarea class="campo-aberto" id="campoAberto" name="campoAberto" placeholder="Escreva livremente..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÕES -->
+    <div class="btn-bar">
+      <button type="button" class="btn btn-secondary" onclick="limparFormulario()">Limpar</button>
+      <button type="button" class="btn btn-accent"   onclick="exportarCSV()">⬇ Backup CSV</button>
+      <button type="button" id="btnEnviar" class="btn btn-primary" onclick="enviarFormulario()">
+        <span id="btnLabel">Enviar Respostas</span>
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════════
+  //  CONFIGURAÇÃO — cole aqui a URL do seu Google Apps Script
+  // ═══════════════════════════════════════════════════════════════
+  const GOOGLE_SCRIPT_URL = 'COLE_AQUI_A_URL_DO_APPS_SCRIPT';
+  // Exemplo: 'https://script.google.com/macros/s/AKfycb.../exec'
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── HIGHLIGHT OPCÕES ─────────────────────────────────────────────
+  document.querySelectorAll('.opcoes').forEach(group => {
+    const type = group.dataset.type;
+    if (type === 'radio') {
+      group.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', () => {
+          group.querySelectorAll('.opcao').forEach(o => o.classList.remove('selected-radio'));
+          input.closest('.opcao').classList.add('selected-radio');
+          // outro
+          const outroId = input.dataset.outro;
+          if (outroId) {
+            document.querySelectorAll('.outro-input').forEach(i => i.classList.remove('show'));
+            document.getElementById(outroId)?.classList.add('show');
+          } else {
+            group.querySelectorAll('.outro-input').forEach(i => i.classList.remove('show'));
+          }
+          updateProgress();
+        });
+      });
+    }
+    if (type === 'checkbox') {
+      const max = parseInt(group.dataset.max || 99);
+      group.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', () => {
+          const checked = group.querySelectorAll('input:checked');
+          if (checked.length > max) { input.checked = false; showToast(`Máximo ${max} opções para esta questão`); return; }
+          group.querySelectorAll('.opcao').forEach(o => o.classList.remove('selected-check'));
+          group.querySelectorAll('input:checked').forEach(i => i.closest('.opcao').classList.add('selected-check'));
+          updateProgress();
+        });
+      });
+    }
+  });
+
+  // ── PRIORIDADE ────────────────────────────────────────────────────
+  document.querySelectorAll('.prioridade-row').forEach(row => {
+    const name = row.dataset.name;
+    row.querySelectorAll('.prio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        row.querySelectorAll('.prio-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector(`input[name="${name}"]`).value = btn.dataset.value;
+        updateProgress();
+      });
+    });
+  });
+
+  // ── PROGRESSO ─────────────────────────────────────────────────────
+  const TOTAL_Q = 38;
+  function updateProgress() {
+    let answered = 0;
+    // radio
+    document.querySelectorAll('[data-type="radio"]').forEach(g => {
+      if (g.querySelector('input:checked')) answered++;
+    });
+    // checkbox (pelo menos 1)
+    document.querySelectorAll('[data-type="checkbox"]').forEach(g => {
+      if (g.querySelector('input:checked')) answered++;
+    });
+    // prio hidden inputs
+    document.querySelectorAll('input[type="hidden"]').forEach(i => {
+      if (i.value) answered++;
+    });
+    // rank selects
+    document.querySelectorAll('select.rank-select').forEach(s => {
+      if (s.value) answered++;
+    });
+    const pct = Math.min(100, Math.round((answered / TOTAL_Q) * 100));
+    document.getElementById('progressFill').style.width  = pct + '%';
+    document.getElementById('progressLabel').textContent = `${answered} de ${TOTAL_Q} respostas preenchidas (${pct}%)`;
+  }
+  document.querySelectorAll('select.rank-select').forEach(s => s.addEventListener('change', updateProgress));
+
+  // ── EXPORT CSV ────────────────────────────────────────────────────
+  function collectValue(name, type) {
+    if (type === 'radio') {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      if (!el) return '';
+      // se for "outro", pegar texto
+      const outroId = el.dataset.outro;
+      if (outroId) {
+        const txt = document.getElementById(outroId)?.value.trim();
+        return txt ? `Outro: ${txt}` : el.value;
+      }
+      return el.value;
+    }
+    if (type === 'checkbox') {
+      const els = document.querySelectorAll(`input[name="${name}"]:checked`);
+      return Array.from(els).map(e => e.value).join(' | ');
+    }
+    return '';
+  }
+
+  function escapeCSV(val) {
+    if (val == null) return '';
+    const s = String(val).replace(/"/g, '""');
+    return (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s}"` : s;
+  }
+
+  function exportarCSV() {
+    const empresa     = document.getElementById('nomeEmpresa').value.trim();
+    const respondente = document.getElementById('nomeRespondente').value.trim();
+    const cargo       = document.getElementById('cargo').value.trim();
+    const email       = document.getElementById('email').value.trim();
+
+    if (!empresa || !respondente) {
+      showToast('Preencha o nome da empresa e do respondente antes de salvar.');
+      return;
+    }
+
+    const now  = new Date();
+    const data = now.toLocaleDateString('pt-BR');
+    const hora = now.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+
+    const fields = [
+      // identificação
+      { col:'Data',        val: data },
+      { col:'Hora',        val: hora },
+      { col:'Empresa',     val: empresa },
+      { col:'Respondente', val: respondente },
+      { col:'Cargo',       val: cargo },
+      { col:'Email',       val: email },
+      // bloco 0
+      { col:'0.1 Porte da Frota',         val: collectValue('q01','radio') },
+      { col:'0.2 Num Colaboradores',      val: collectValue('q02','radio') },
+      { col:'0.3 Segmento',               val: collectValue('q03','radio') },
+      { col:'0.4 Estados',                val: collectValue('q04','radio') },
+      { col:'0.5 TMS Atual',              val: collectValue('q05','radio') },
+      // bloco 1
+      { col:'1.1 Controle Manutenção',    val: collectValue('q11','radio') },
+      { col:'1.2 Docs Veículos',          val: collectValue('q12','radio') },
+      { col:'1.3 Combustível',            val: collectValue('q13','radio') },
+      { col:'1.4 Custo por Veículo',      val: collectValue('q14','radio') },
+      { col:'1.5 Rastreamento',           val: collectValue('q15','radio') },
+      { col:'1.6 Dor Frota',              val: collectValue('q16','checkbox') },
+      { col:'1.7 Prio Frota',             val: document.querySelector('input[name="q17"]').value },
+      // bloco 2
+      { col:'2.1 Contas PagRec',          val: collectValue('q21','radio') },
+      { col:'2.2 Fluxo Caixa',            val: collectValue('q22','radio') },
+      { col:'2.3 Margem Lucro',           val: collectValue('q23','radio') },
+      { col:'2.4 Inadimplência',          val: collectValue('q24','radio') },
+      { col:'2.5 Conciliação Bancária',   val: collectValue('q25','radio') },
+      { col:'2.6 Centros de Custo',       val: collectValue('q26','radio') },
+      { col:'2.7 Dor Financeira',         val: collectValue('q27','checkbox') },
+      { col:'2.8 Prio Financeiro',        val: document.querySelector('input[name="q28"]').value },
+      // bloco 3
+      { col:'3.1 Jornada Motoristas',     val: collectValue('q31','radio') },
+      { col:'3.2 Docs Motoristas',        val: collectValue('q32','radio') },
+      { col:'3.3 Treinamentos',           val: collectValue('q33','radio') },
+      { col:'3.4 Produtividade',          val: collectValue('q34','radio') },
+      { col:'3.5 Custo Colaborador',      val: collectValue('q35','radio') },
+      { col:'3.6 Absenteísmo',            val: collectValue('q36','radio') },
+      { col:'3.7 Dor RH',                 val: collectValue('q37','checkbox') },
+      { col:'3.8 Prio RH',                val: document.querySelector('input[name="q38"]').value },
+      // bloco 4
+      { col:'4.1 Painel Indicadores',     val: collectValue('q41','radio') },
+      { col:'4.2 Custo por KM',           val: collectValue('q42','radio') },
+      { col:'4.3 Disponib Frota',         val: collectValue('q43','radio') },
+      { col:'4.4 Decisões por Dados',     val: collectValue('q44','radio') },
+      { col:'4.5 KPIs Necessários',       val: collectValue('q45','checkbox') },
+      { col:'4.6 Prio Gerencial',         val: document.querySelector('input[name="q46"]').value },
+      // bloco 5
+      { col:'5.1 Manter TMS Atual',       val: collectValue('q51','radio') },
+      { col:'5.2 Maior Obstáculo',        val: collectValue('q52','radio') },
+      { col:'5.3 Acesso Preferido',       val: collectValue('q53','radio') },
+      { col:'5.4 Integrações',            val: collectValue('q54','checkbox') },
+      { col:'5.5 Prazo Resultado',        val: collectValue('q55','radio') },
+      // bloco 6
+      { col:'6.1 Rank 1',                 val: document.querySelector('select[name="rank1"]').value },
+      { col:'6.1 Rank 2',                 val: document.querySelector('select[name="rank2"]').value },
+      { col:'6.1 Rank 3',                 val: document.querySelector('select[name="rank3"]').value },
+      { col:'6.1 Rank 4',                 val: document.querySelector('select[name="rank4"]').value },
+      { col:'6.2 Prioridade 90 Dias',     val: collectValue('q62','radio') },
+      { col:'6.3 Frase da Empresa',       val: collectValue('q63','radio') },
+      // campo aberto
+      { col:'Observações',               val: document.getElementById('campoAberto').value.trim() },
+    ];
+
+    const header = fields.map(f => escapeCSV(f.col)).join(',');
+    const row    = fields.map(f => escapeCSV(f.val)).join(',');
+    const csv    = '\uFEFF' + header + '\n' + row;  // BOM para Excel pt-BR
+
+    const slug    = empresa.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const date    = now.toISOString().slice(0,10);
+    const filename = `diagnostico-${slug}-${date}.csv`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast(`✅ CSV salvo: ${filename}`);
+  }
+
+  // ── ENVIAR AO GOOGLE SHEETS ───────────────────────────────────────
+  function buildPayload() {
+    const now  = new Date();
+    return {
+      'Data':  now.toLocaleDateString('pt-BR'),
+      'Hora':  now.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }),
+      'Empresa':     document.getElementById('nomeEmpresa').value.trim(),
+      'Respondente': document.getElementById('nomeRespondente').value.trim(),
+      'Cargo':       document.getElementById('cargo').value.trim(),
+      'Email':       document.getElementById('email').value.trim(),
+      '0.1 Porte da Frota':       collectValue('q01','radio'),
+      '0.2 Num Colaboradores':    collectValue('q02','radio'),
+      '0.3 Segmento':             collectValue('q03','radio'),
+      '0.4 Estados':              collectValue('q04','radio'),
+      '0.5 TMS Atual':            collectValue('q05','radio'),
+      '1.1 Controle Manutenção':  collectValue('q11','radio'),
+      '1.2 Docs Veículos':        collectValue('q12','radio'),
+      '1.3 Combustível':          collectValue('q13','radio'),
+      '1.4 Custo por Veículo':    collectValue('q14','radio'),
+      '1.5 Rastreamento':         collectValue('q15','radio'),
+      '1.6 Dor Frota':            collectValue('q16','checkbox'),
+      '1.7 Prio Frota':           document.querySelector('input[name="q17"]').value,
+      '2.1 Contas PagRec':        collectValue('q21','radio'),
+      '2.2 Fluxo Caixa':          collectValue('q22','radio'),
+      '2.3 Margem Lucro':         collectValue('q23','radio'),
+      '2.4 Inadimplência':        collectValue('q24','radio'),
+      '2.5 Conciliação':          collectValue('q25','radio'),
+      '2.6 Centros de Custo':     collectValue('q26','radio'),
+      '2.7 Dor Financeira':       collectValue('q27','checkbox'),
+      '2.8 Prio Financeiro':      document.querySelector('input[name="q28"]').value,
+      '3.1 Jornada Motoristas':   collectValue('q31','radio'),
+      '3.2 Docs Motoristas':      collectValue('q32','radio'),
+      '3.3 Treinamentos':         collectValue('q33','radio'),
+      '3.4 Produtividade':        collectValue('q34','radio'),
+      '3.5 Custo Colaborador':    collectValue('q35','radio'),
+      '3.6 Absenteísmo':          collectValue('q36','radio'),
+      '3.7 Dor RH':               collectValue('q37','checkbox'),
+      '3.8 Prio RH':              document.querySelector('input[name="q38"]').value,
+      '4.1 Painel Indicadores':   collectValue('q41','radio'),
+      '4.2 Custo por KM':         collectValue('q42','radio'),
+      '4.3 Disponib Frota':       collectValue('q43','radio'),
+      '4.4 Decisões por Dados':   collectValue('q44','radio'),
+      '4.5 KPIs Necessários':     collectValue('q45','checkbox'),
+      '4.6 Prio Gerencial':       document.querySelector('input[name="q46"]').value,
+      '5.1 Manter TMS Atual':     collectValue('q51','radio'),
+      '5.2 Maior Obstáculo':      collectValue('q52','radio'),
+      '5.3 Acesso Preferido':     collectValue('q53','radio'),
+      '5.4 Integrações':          collectValue('q54','checkbox'),
+      '5.5 Prazo Resultado':      collectValue('q55','radio'),
+      '6.1 Rank 1':  document.querySelector('select[name="rank1"]').value,
+      '6.1 Rank 2':  document.querySelector('select[name="rank2"]').value,
+      '6.1 Rank 3':  document.querySelector('select[name="rank3"]').value,
+      '6.1 Rank 4':  document.querySelector('select[name="rank4"]').value,
+      '6.2 Prioridade 90 Dias': collectValue('q62','radio'),
+      '6.3 Frase da Empresa':   collectValue('q63','radio'),
+      'Observações': document.getElementById('campoAberto').value.trim(),
+    };
+  }
+
+  async function enviarFormulario() {
+    const empresa     = document.getElementById('nomeEmpresa').value.trim();
+    const respondente = document.getElementById('nomeRespondente').value.trim();
+
+    if (!empresa || !respondente) {
+      showToast('Preencha o nome da empresa e do respondente antes de enviar.');
+      return;
+    }
+
+    if (GOOGLE_SCRIPT_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+      showToast('⚠️ URL do Google Apps Script não configurada. Use o botão "Backup CSV".');
+      return;
+    }
+
+    const btn   = document.getElementById('btnEnviar');
+    const label = document.getElementById('btnLabel');
+    btn.disabled  = true;
+    label.textContent = 'Enviando...';
+
+    try {
+      const payload = buildPayload();
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method:  'POST',
+        mode:    'no-cors',          // GAS não retorna CORS headers — dados chegam mesmo assim
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+
+      label.textContent  = '✅ Enviado!';
+      btn.style.background = 'var(--success)';
+      showToast('✅ Respostas salvas no Google Drive com sucesso!');
+
+      setTimeout(() => {
+        label.textContent    = 'Enviar Respostas';
+        btn.style.background = '';
+        btn.disabled         = false;
+      }, 4000);
+
+    } catch (err) {
+      label.textContent = 'Erro — tente novamente';
+      btn.disabled      = false;
+      showToast('❌ Falha no envio. Tente o botão "Backup CSV" como alternativa.');
+      console.error(err);
+    }
+  }
+
+  // ── LIMPAR ────────────────────────────────────────────────────────
+  function limparFormulario() {
+    if (!confirm('Deseja limpar todas as respostas?')) return;
+    document.getElementById('diagnosticoForm').reset();
+    document.querySelectorAll('.opcao').forEach(o => { o.classList.remove('selected-radio','selected-check'); });
+    document.querySelectorAll('.prio-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('input[type="hidden"]').forEach(i => i.value = '');
+    document.querySelectorAll('.outro-input').forEach(i => i.classList.remove('show'));
+    document.getElementById('nomeEmpresa').value = '';
+    document.getElementById('nomeRespondente').value = '';
+    document.getElementById('cargo').value = '';
+    document.getElementById('email').value = '';
+    updateProgress();
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+</script>
+</body>
+</html>
